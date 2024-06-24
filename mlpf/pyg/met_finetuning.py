@@ -166,12 +166,6 @@ def train_and_valid(
                     w = deepmet(X).squeeze(dim=-1)
                     
         if deepmet_output_mode == 2:
-            print("wx: ", wx.shape)
-        elif deepmet_output_mode == 1:
-            print("w: ", w.shape)
-            
-        print("reco_px: ", reco_px.shape)
-        if deepmet_output_mode == 2:
             pred_met_x = torch.sum(wx * reco_px, axis=1)
             pred_met_y = torch.sum(wy * reco_py, axis=1)
         elif deepmet_output_mode == 1:
