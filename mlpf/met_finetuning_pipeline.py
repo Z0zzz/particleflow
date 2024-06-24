@@ -109,7 +109,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--predict_met_mode", 
+    "--predict-met-mode", 
     type=str, 
     default="separate", 
     help="deepmet will regress to produce one value for wx and wy, or it could produce each separately. Defaults to predict separately."
