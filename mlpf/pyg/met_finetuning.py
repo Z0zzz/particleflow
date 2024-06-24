@@ -47,6 +47,7 @@ def train_and_valid(
     train_loader,
     valid_loader,
     trainable,
+    deepmet_output_mode = 2,
     is_train=True,
     epoch=None,
     dtype=torch.float32,
@@ -153,14 +154,24 @@ def train_and_valid(
         # ----------------------- Run finetuning -----------------------
 
         if is_train:
-            wx, wy = deepmet(X)
+            if deepmet_output_mode == 2:
+                wx, wy = deepmet(X)
+            elif deepmet_output_mode == 1:
+                w = deepmet(X)
         else:
             with torch.no_grad():
-                wx, wy = deepmet(X)
+                if deepmet_output_mode == 2:
+                    wx, wy = deepmet(X)
+                elif deepmet_output_mode == 1:
+                    w = deepmet(X)
 
-        pred_met_x = torch.sum(wx * reco_px, axis=1)
-        pred_met_y = torch.sum(wy * reco_py, axis=1)
-
+        if deepmet_output_mode == 2:
+            pred_met_x = torch.sum(wx * reco_px, axis=1)
+            pred_met_y = torch.sum(wy * reco_py, axis=1)
+        elif deepmet_output_mode == 1:
+            pred_met_x = torch.sum(w * reco_px, axis=1)
+            pred_met_y = torch.sum(w * reco_py, axis=1)
+            
         # Gen(MET) to compute the loss
         msk_gen = ygen["cls_id"] != 0
         gen_px = (ygen["pt"] * ygen["cos_phi"]) * msk_gen
@@ -239,6 +250,7 @@ def finetune_mlpf(
     num_epochs,
     patience,
     outdir,
+    deepmet_output_mode = 2,
     trainable="all",
     dtype=torch.float32,
     checkpoint_freq=None,
@@ -290,6 +302,7 @@ def finetune_mlpf(
             valid_loader=valid_loader,
             trainable=trainable,
             is_train=True,
+            deepmet_output_mode = deepmet_output_mode,
             epoch=epoch,
             dtype=dtype,
         )
@@ -306,6 +319,7 @@ def finetune_mlpf(
             valid_loader=valid_loader,
             trainable=trainable,
             is_train=False,
+            deepmet_output_mode = deepmet_output_mode,
             epoch=epoch,
             dtype=dtype,
         )

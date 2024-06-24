@@ -108,6 +108,13 @@ parser.add_argument(
     help="if True will reinitialize the MLPF backbone before the downstream training",
 )
 
+parser.add_argument(
+    "--predict_met_mode", 
+    type=str, 
+    default="separate", 
+    help="deepmet will regress to produce one value for wx and wy, or it could produce each separately. Defaults to predict separately."
+)
+
 
 def ffn(input_dim, output_dim, width, act, dropout):
     return nn.Sequential(
@@ -139,7 +146,8 @@ class DeepMET(nn.Module):
 
         Note: default `input_dim` is 9 which stands for "clf_nodes (6) + regression_nodes (5)"
         """
-
+        
+        self.output_dim = output_dim
         self.act = nn.ELU
         self.nn = ffn(input_dim, output_dim, width, self.act, dropout)
 
@@ -147,9 +155,11 @@ class DeepMET(nn.Module):
     def forward(self, X):
 
         MET = self.nn(X)
-
-        return MET[:, :, 0], MET[:, :, 1]
-
+        
+        if self.output_dim == 2:
+            return MET[:, :, 0], MET[:, :, 1]
+        else:
+            return MET
 
 def main():
     args = parser.parse_args()
@@ -290,7 +300,11 @@ def run(rank, world_size, config, args, backbone_dir, outdir, logfile):
             "Must choose one of the following choices for --downstream-input: ['pfcands', 'mlpfcands', 'latents]"
         )
 
-    deepmet = DeepMET(input_dim=deepmet_input_dim)
+    if args.predict_met_mode == "single":
+        deepmet_output_dim = 1
+    elif args.predict_met_mode == "separate":
+        deepmet_output_dim = 2
+    deepmet = DeepMET(input_dim=deepmet_input_dim, output_dim=deepmet_output_dim)
     optimizer = (
         torch.optim.AdamW(deepmet.parameters(), lr=args.lr)
         if args.backbone_mode == "freeze"
@@ -341,6 +355,7 @@ def run(rank, world_size, config, args, backbone_dir, outdir, logfile):
             config["num_epochs"],
             config["patience"],
             outdir,
+            deepmet_output_mode=deepmet_output_dim,
             trainable="all",
             dtype=dtype,
             checkpoint_freq=config["checkpoint_freq"],
