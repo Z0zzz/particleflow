@@ -110,8 +110,8 @@ parser.add_argument(
 
 parser.add_argument(
     "--predict-met-mode", 
-    type=str, 
-    default="separate", 
+    type=int, 
+    default=2, 
     help="deepmet will regress to produce one value for wx and wy, or it could produce each separately. Defaults to predict separately."
 )
 
@@ -300,10 +300,8 @@ def run(rank, world_size, config, args, backbone_dir, outdir, logfile):
             "Must choose one of the following choices for --downstream-input: ['pfcands', 'mlpfcands', 'latents]"
         )
 
-    if args.predict_met_mode == "single":
-        deepmet_output_dim = 1
-    elif args.predict_met_mode == "separate":
-        deepmet_output_dim = 2
+    deepmet_output_dim = int(args.predict_met_mode)
+    
     deepmet = DeepMET(input_dim=deepmet_input_dim, output_dim=deepmet_output_dim)
     optimizer = (
         torch.optim.AdamW(deepmet.parameters(), lr=args.lr)
