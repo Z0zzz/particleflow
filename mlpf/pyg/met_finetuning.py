@@ -168,7 +168,6 @@ def train_and_valid(
         if deepmet_output_mode == 2:
             print("wx: ", wx.shape)
         elif deepmet_output_mode == 1:
-            w = deepmet(X)
             print("w: ", w.shape)
             
         print("reco_px: ", reco_px.shape)
