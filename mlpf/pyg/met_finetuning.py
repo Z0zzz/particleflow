@@ -157,13 +157,13 @@ def train_and_valid(
             if deepmet_output_mode == 2:
                 wx, wy = deepmet(X)
             elif deepmet_output_mode == 1:
-                w = deepmet(X)
+                w = deepmet(X).squeeze(dim=-1)
         else:
             with torch.no_grad():
                 if deepmet_output_mode == 2:
                     wx, wy = deepmet(X)
                 elif deepmet_output_mode == 1:
-                    w = deepmet(X)
+                    w = deepmet(X).squeeze(dim=-1)
                     
         if deepmet_output_mode == 2:
             print("wx: ", wx.shape)
