@@ -63,7 +63,8 @@ def train_and_valid(
     configure_model_trainable(deepmet, trainable, is_train)
 
     epoch_loss = {}  # this one will keep accumulating `train_loss` and then return the average
-
+    criterion = torch.nn.MSELoss()
+    
     if is_train:
         data_loader = train_loader
     else:
@@ -181,7 +182,7 @@ def train_and_valid(
         true_met_y = torch.sum(gen_py, axis=1)
 
         if is_train:
-            loss["MET"] = torch.nn.MSELoss(true_met_x, pred_met_x) + torch.nn.MSELoss(true_met_y, pred_met_y)
+            loss["MET"] = criterion(true_met_x, pred_met_x) + criterion(true_met_y, pred_met_y)
             
             for param in deepmet.parameters():
                 param.grad = None
@@ -194,12 +195,12 @@ def train_and_valid(
 
         else:
             with torch.no_grad():
-                loss["MET"] = torch.nn.MSELoss(true_met_x, pred_met_x) + torch.nn.MSELoss(true_met_y, pred_met_y)
+                loss["MET"] = criterion(true_met_x, pred_met_x) + criterion(true_met_y, pred_met_y)
                 
         # monitor the MLPF and PF MET loss
         with torch.no_grad():
             if downstream_input != "pfcands":  # monitor MLPF loss only if the backbone inference was on
-                loss["MET_MLPF"] = torch.nn.MSELoss(true_met_x, torch.sum(reco_px, axis=1)) + torch.nn.MSELoss(
+                loss["MET_MLPF"] = criterion(true_met_x, torch.sum(reco_px, axis=1)) + criterion(
                     true_met_y, torch.sum(reco_py, axis=1)
                 )
 
@@ -207,7 +208,7 @@ def train_and_valid(
             cand_px = (ycand["pt"] * ycand["cos_phi"]) * msk_ycand
             cand_py = (ycand["pt"] * ycand["sin_phi"]) * msk_ycand
 
-            loss["MET_PF"] = torch.nn.MSELoss(true_met_x, torch.sum(cand_px, axis=1)) + torch.nn.MSELoss(
+            loss["MET_PF"] = torch.criterion(true_met_x, torch.sum(cand_px, axis=1)) + torch.criterion(
                 true_met_y, torch.sum(cand_py, axis=1)
             )
 
