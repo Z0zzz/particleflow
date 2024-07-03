@@ -208,7 +208,7 @@ def train_and_valid(
             cand_px = (ycand["pt"] * ycand["cos_phi"]) * msk_ycand
             cand_py = (ycand["pt"] * ycand["sin_phi"]) * msk_ycand
 
-            loss["MET_PF"] = torch.criterion(true_met_x, torch.sum(cand_px, axis=1)) + torch.criterion(
+            loss["MET_PF"] = criterion(true_met_x, torch.sum(cand_px, axis=1)) + criterion(
                 true_met_y, torch.sum(cand_py, axis=1)
             )
 
