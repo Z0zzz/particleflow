@@ -148,7 +148,7 @@ class DeepMET(nn.Module):
         """
         
         self.output_dim = output_dim
-        self.act = nn.ELU
+        self.act = nn.ReLU
         self.nn = ffn(input_dim, output_dim, width, self.act, dropout)
 
     # @torch.compile
@@ -278,9 +278,6 @@ def run(rank, world_size, config, args, backbone_dir, outdir, logfile):
             _logger.info(f"Backbone Non-trainable parameters: {nontrainable_params}")
             _logger.info(f"Backbone Total parameters: {trainable_params + nontrainable_params}")
             _logger.info(table.to_string(index=False))
-
-    configure_model_trainable(mlpf, "all", True)
-    trainable_params, nontrainable_params, table = count_parameters(mlpf)
 
     # ----------------------- Finetuned model -----------------------
 
