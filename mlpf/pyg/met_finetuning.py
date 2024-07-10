@@ -153,22 +153,23 @@ def train_and_valid(
             X = X * msk_ymlpf.unsqueeze(-1)  # run downstream on actual particles (i.e. ignore the Nulls)
 
         # ----------------------- Run finetuning -----------------------
-
+        
+        # directly predict metx, mety
         if is_train:
             if deepmet_output_mode == 2:
-                wx, wy = deepmet(X)
+                pred_px, pred_py = deepmet(X)
             elif deepmet_output_mode == 1:
                 w = deepmet(X).squeeze(dim=-1)
         else:
             with torch.no_grad():
                 if deepmet_output_mode == 2:
-                    wx, wy = deepmet(X)
+                    pred_px, pred_py = deepmet(X)
                 elif deepmet_output_mode == 1:
                     w = deepmet(X).squeeze(dim=-1)
                     
         if deepmet_output_mode == 2:
-            pred_met_x = torch.sum(wx * reco_px, axis=1)
-            pred_met_y = torch.sum(wy * reco_py, axis=1)
+            pred_met_x = torch.sum(pred_px, axis=1)
+            pred_met_y = torch.sum(pred_py, axis=1)
         elif deepmet_output_mode == 1:
             pred_met_x = torch.sum(w * reco_px, axis=1)
             pred_met_y = torch.sum(w * reco_py, axis=1)
