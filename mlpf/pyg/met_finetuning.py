@@ -114,7 +114,10 @@ def train_and_valid(
             reco_py = (ycand["pt"] * ycand["sin_phi"]) * msk_ycand
 
             X = torch.cat([ycand["momentum"], ycand["cls_id"].unsqueeze(-1)], axis=-1)
-            X = X * msk_ycand.unsqueeze(-1)  # run downstream on actual particles (i.e. ignore the Nulls)
+            
+            # if predicting metx and mety directly
+            if deepmet_output_mode == 2:
+                X = X * msk_ycand.unsqueeze(-1)  # run downstream on actual particles (i.e. ignore the Nulls)
 
         else:
             with torch.autocast(device_type="cuda", dtype=dtype, enabled=device_type == "cuda"):
@@ -149,8 +152,10 @@ def train_and_valid(
 
             elif downstream_input == "mlpfcands":  # use the MLPF cands
                 X = torch.cat([ymlpf["momentum"], ymlpf["cls_id_onehot"]], axis=-1)
-
-            X = X * msk_ymlpf.unsqueeze(-1)  # run downstream on actual particles (i.e. ignore the Nulls)
+            
+            # if predicting metx and mety directly
+            if deepmet_output_mode == 2:
+                X = X * msk_ymlpf.unsqueeze(-1)  # run downstream on actual particles (i.e. ignore the Nulls)
 
         # ----------------------- Run finetuning -----------------------
         

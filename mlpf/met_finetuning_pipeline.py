@@ -112,7 +112,7 @@ parser.add_argument(
     "--predict-met-mode", 
     type=int, 
     default=2, 
-    help="deepmet will regress to produce one value for wx and wy, or it could produce each separately. Defaults to predict separately."
+    help="1: predict a single weight w for reconstruction; 2: predict directly metx and mety separately"
 )
 
 
