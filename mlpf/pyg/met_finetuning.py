@@ -115,8 +115,8 @@ def train_and_valid(
 
             X = torch.cat([ycand["momentum"], ycand["cls_id"].unsqueeze(-1)], axis=-1)
             
-            # if predicting metx and mety directly
-            if deepmet_output_mode == 2:
+            # if predicting a single weight
+            if deepmet_output_mode == 1:
                 X = X * msk_ycand.unsqueeze(-1)  # run downstream on actual particles (i.e. ignore the Nulls)
 
         else:
@@ -153,8 +153,8 @@ def train_and_valid(
             elif downstream_input == "mlpfcands":  # use the MLPF cands
                 X = torch.cat([ymlpf["momentum"], ymlpf["cls_id_onehot"]], axis=-1)
             
-            # if predicting metx and mety directly
-            if deepmet_output_mode == 2:
+            # if predicting a single weight
+            if deepmet_output_mode == 1:
                 X = X * msk_ymlpf.unsqueeze(-1)  # run downstream on actual particles (i.e. ignore the Nulls)
 
         # ----------------------- Run finetuning -----------------------
